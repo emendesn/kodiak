@@ -1,0 +1,77 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "kodikDebug",
+            "type": "shell",
+            "command": "/home/edilson/hb/bin/hbmk2",
+            "args": [
+                "/home/edilson/kodiak/v1/server/kodiak.hbp",
+                "-b",
+                "-okodiak",                
+                "-m",
+                "-mt",
+                "-n0",
+                "-w2",
+                "-inc",
+                "-std",
+                "-hbexe",
+                "-trace",
+                "-workdir=./obj/",
+                "-head=full"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "label": "kodiakRelease",
+            "type": "shell",
+            "command": "/home/edilson/hb/bin/hbmk2",
+            "args": [
+                "~/kodiak/v1/server/kodiak.hbp",
+                "-rebuild"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            }
+        },
+        {
+            "label": "kodiakRelease",
+            "dependsOn": [
+                "kodiakRelease"
+            ],
+            "type": "shell",
+            "command": [
+                "$/kodiak/v1/server/kodiak",
+                "/P/home/edilson/kodiak/data",
+                "/T/home/edilson/kodiak/tmp"
+            ],
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": true,
+                "panel": "shared",
+                "showReuseMessage": false,
+                "clear": true
+            },
+            "problemMatcher": []
+        }
+    ]
+}
