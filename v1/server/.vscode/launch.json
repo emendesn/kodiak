@@ -1,0 +1,20 @@
+{
+    // Use o IntelliSense para aprender sobre possíveis atributos.
+    // Passe o mouse para ver as descrições dos atributos existentes.
+    // Para obter mais informações, visite: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "harbour-dbg",
+            "request": "launch",
+            "name": "Launch kodiak",
+            "program": "/home/edilson/kodiak/v1/server/kodiak",
+            "stopOnEntry": false,
+            "terminalType": "external",
+            "preLaunchTask": "kodikDebug",
+            "postDebugTask": "",
+            "workingDir": "/home/edilson/kodiak/v1/server/",
+            "sourcePaths": ["/home/edilson/kodiak/v1/server/obj/"]
+        },
+    ]
+}
