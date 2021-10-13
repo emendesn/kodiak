@@ -1,0 +1,226 @@
+Application Internal Error - /home/edilson/kodiak/server/kodiak
+Terminated at: 2020-04-03 20:11:29
+Erro irrecuper vel 9003: Muitas chamadas recursivas ao manipulador de erros
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from VAL(0)
+Called from WEBSOCKETSERVER:NEW(128) in /home/edilson/kodiak/server/wssocket.prg
+Called from WEBSOCKETSERVER:ACTIVATE(298) in /home/edilson/kodiak/server/wssocket.prg
+Called from WEBSOCKETSERVER:NEW(262) in /home/edilson/kodiak/server/wssocket.prg
+Called from MAIN(27) in /home/edilson/kodiak/server/main.prg
+------------------------------------------------------------------------
+Application Internal Error - /home/edilson/kodiak/server/kodiak
+Terminated at: 2020-04-03 23:43:58
+Erro irrecuper vel 9003: Muitas chamadas recursivas ao manipulador de erros
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from VAL(0)
+Called from WEBSOCKETSERVER:NEW(128) in /home/edilson/kodiak/server/wssocket.prg
+Called from WEBSOCKETSERVER:ACTIVATE(298) in /home/edilson/kodiak/server/wssocket.prg
+Called from MAIN(29) in /home/edilson/kodiak/server/main.prg
+------------------------------------------------------------------------
+Application Internal Error - /home/edilson/kodiak/server/kodiak
+Terminated at: 2020-04-03 23:54:45
+Erro irrecuper vel 9003: Muitas chamadas recursivas ao manipulador de erros
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from VAL(0)
+Called from WEBSOCKETSERVER:NEW(128) in /home/edilson/kodiak/server/wssocket.prg
+Called from WEBSOCKETSERVER:ACTIVATE(298) in /home/edilson/kodiak/server/wssocket.prg
+Called from MAIN(29) in /home/edilson/kodiak/server/main.prg
+------------------------------------------------------------------------
+Application Internal Error - /home/edilson/kodiak/server/kodiak
+Terminated at: 2020-04-04 00:21:12
+Erro irrecuper vel 9003: Muitas chamadas recursivas ao manipulador de erros
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ERROR:DESCRITION(0)
+Called from GETERRORDESC(569) in /home/edilson/kodiak/server/hbsocket.prg
+Called from UERRORHANDLER(544) in /home/edilson/kodiak/server/hbsocket.prg
+Called from (b)WEBSOCKETSERVER_ACTIVATE(296) in /home/edilson/kodiak/server/wssocket.prg
+Called from ERRORBLOCKCODE(1190)
+Called from (b)__DBGENTRY(1406)
+Called from ALLTRIM(0)
+Called from WEBSOCKETSERVER:NEW(140) in /home/edilson/kodiak/server/wssocket.prg
+Called from WEBSOCKETSERVER:ACTIVATE(298) in /home/edilson/kodiak/server/wssocket.prg
+Called from WEBSOCKETSERVER:NEW(262) in /home/edilson/kodiak/server/wssocket.prg
+Called from MAIN(27) in /home/edilson/kodiak/server/main.prg
+------------------------------------------------------------------------

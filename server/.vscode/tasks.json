@@ -6,26 +6,10 @@
         {
             "label": "kodikDebug",
             "type": "shell",
-            "command": "/home/edilson/hb/bin/hbmk2",
+            "command": "~/hb/bin/hbmk2",
             "args": [
-                "/home/edilson/kodiak/v1/server/kodiak.hbp",
-              //  "-b",
-                "-okodiak",
-             //   "-m",
-             //   "-mt",
-             //   "-n0",
-             //   "-w0",
-             //   "-lexpat",
-             //   "-lgtcgi",
-             //   "-lgtpca",
-             //   "-lgtstd",
-             //   "-lgttrm",
-             //   "-lgtxwc",
-                "-std",
-            //    "-hbexe",
-            //    "-trace",
-                "-workdir=./obj/",
-                "-head=full"
+                "~/kodiak/server/kodiak.hbp",
+                "-b"
             ],
             "presentation": {
                 "echo": true,

@@ -1,0 +1,789 @@
+/*
+* KODIAK
+* (C) 2020 Edilson Mendes Nascimento <edilson.mendes.nascimento@gmail.com>
+*/
+
+#include "hbclass.ch"
+#include "common.ch"
+#include "fileio.ch"
+#include "error.ch"
+#include "hbsocket.ch"
+#include "main.ch"
+
+#pragma -kM+
+
+#define SESSION_TIMEOUT  600
+
+#define pCR_LF           Chr(13) + Chr(10)
+#define pCR              Chr(10)
+#define pLF              Chr(13)
+
+static as_http  :=  {   "SERVER_PROTOCOL",                   ;
+                        "HTTP/1.0",                          ;
+                        "HTTP/1.1",                          ;
+                        "REMOTE_ADDR",                       ;
+                        "REMOTE_HOST",                       ;
+                        "REMOTE_PORT",                       ;
+                        "SERVER_ADDR",                       ;
+                        "SERVER_PORT",                       ;
+                        "REQUEST_ALL",                       ;
+                        "REQUEST_METHOD",                    ;
+                        "REQUEST_URL",                       ;
+                        "SCRIPT_NAME",                       ;
+                        "QUERY_STRING",                      ;
+                        "HTTP_ACCEPT",                       ;
+                        "HTTP_ACCEPT_CHARSET",               ;
+                        "HTTP_ACCEPT_ENCODING",              ;
+                        "HTTP_ACCEPT_LANGUAGE",              ;
+                        "HTTP_CONNECTION",                   ;
+                        "HTTP_HOST",                         ;
+                        "HTTP_KEEP_ALIVE",                   ;
+                        "HTTP_REFERER",                      ;
+                        "HTTP_USER_AGENT",                   ;
+                        "HTTP_CONTENT_TYPE",                 ;
+                        "SESSID",                            ;
+                        "Content-Type",                      ;
+                        "Set-Cookie",                        ;
+                        "Keep-Live",                         ;
+                        "Connection",                        ;
+                        "Close",                             ;
+                        "Content-Lenght",                    ; 
+                        "multipart/form-data",               ;
+                        "--WebKitFormBoundary",              ;
+                        "application/x-www-form-urlencoded", ;
+                    }
+
+static hStatusCode := { 200 => "200 OK",                   ;
+                        201 => "201 Comando POST concuido com sucesso",                ;
+                        202 => "202 Aceitacao de tarefas",   ;
+                        203 => "203 Tarefa GET ou HEAD concuida",                ;
+                        204 => "204 Tarefa concluida, mas nenhum dado a ser enviado",;
+                        300 => "300 Recursos foram encontrados em varios lugares",             ;
+                        301 => "301 Movido permanentemente",    ;
+                        302 => "302 Encontrado",                ;
+                        303 => "303 Ver Outros",            ;
+                        304 => "304 Nao Modificado" ,        ;
+                        400 => "400 Pedido Incorreto",          ;
+                        401 => "401 Nao Autorizado",         ;
+                        402 => "402 Pafamento Necessario",     ;
+                        403 => "403 Proibido",            ;
+                        404 => "404 Nao Encontrado",            ;
+                        405 => "405 Metodo de recurso nao permitido",  ;
+                        406 => "406 Tipo de recurso inaceitavel",                          ;
+                        410 => "410 Recursos nao disponiveis",                             ;
+                        412 => "412 Falha na pre-condicao",                                ;
+                        500 => "500 Erro interno do servidor",                             ;
+                        501 => "501 Nao implementado",                                     ;
+                        502 => "502 Gateway ou servidor incorreto sobrecarregado",         ;
+                        503 => "503 Serviço não disponível ou tempo excedido",             ;
+                        504 => "504 Tempo para resposta do servidor ou gateway secundário" ;
+                    }
+
+static httpDateFormat := { |xDate| ;
+                                    { "Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat" } ;
+                                        [ Dow( xDate) ] + "," + Padl( Day( xDate ), 2, "0") + " " + ;
+                                        {  "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" } ;
+                                            [ Month( xDate ) ] + " " + PadL( Year( xDate ), 4, "0" ) + " " + ;
+                                                hb_TToC( xDate, "", "HH:MM:SS" ) + "GMT" }
+
+static methods := { "GET", "POST", "HEAD" }
+
+static delim   := {  pCR_LF, pCR, pLF }
+
+static headerMember :=  {   "Connection"     => { "Close", "Keep-Alive"}, ;
+                            "Set-Cookie"     => { "SESSID=<cSid>; path=/; Max-Age=0", "SESSID=<cSID>; path=/"},;
+                            "Date"           => Nil ,                     ; // httpDateFormat:Eval( hb_dateTime())
+                            "Last-Modified"  => Nil ,                     ; // httpDateFormat:Eval( hb_dateTime())
+                            "Location"       => "cURL",                   ;
+                            "Content-Type"   => { "text/html", "text/html; charset=UTF-8", "text/css", "text/plain", "text/rtf", "text/xml", "image/bmp", "image/gif", "image/jpeg", "image/png", "image/tiff", "image/vnd.djvu", "image/x-icon", "application/excel", "application/msword", "application/pdf", "application/postscript", "application/powerpoint", "application/x-bzip2", "application/x-gzip", "application/x-gtar", "application/x-javascript", "application/json", "application/x-tar", "application/x-tex", "application/zip", "application/rar", "audio/midi", "audio/mpeg", "audio/x-wav", "video/quicktime", "video/x-msvideo", "application/octet-stream" },;
+                            "Content-Length" => { | txt| Ltrim( Str( Len( txt)))} ;
+                        }
+
+static MapTypeFile  := {    {  1, "htm", "html" },        ; //   "text/html", "text/html; charset=windows-1257"
+                            {  3, "css" },                ; // "text/css"
+                            {  4, "txt", "text", "asc", "c", "h", "cpp", "hpp", "log", "prg", "bos", "ch" }, ; // "text/plain"
+                            {  5, "rtf" },                ; // "text/rtf"
+                            {  6, "xml" },                ; // "text/xml"
+                            {  7, "bmp" },                ; // "image/bmp"
+                            {  8, "gif" },                ; // "image/gif"
+                            {  9, "jpg", "jpe", "jpeg" }, ; // "image/jpeg"
+                            { 10, "png" },                ; // "image/png"
+                            { 11, "tif", "tiff" },        ; // "image/tiff"
+                            { 12, "djv", "djvu" },        ; // "image/vnd.djvu"
+                            { 13, "ico" },                ; // "image/x-icon"
+                            { 14, "xls", "xlsx" },        ; // "application/excel"
+                            { 15, "doc", "docx" },        ; // "application/msword"
+                            { 16, "pdf" },                ; // "application/pdf"
+                            { 17, "ps",  "eps" },         ; // "application/postscript"
+                            { 18, "ppt" },                ; // "application/powerpoint"
+                            { 19, "bz2" },                ; // "application/x-bzip2"
+                            { 20, "gz"  },                ; // "application/x-gzip"
+                            { 21, "tgz" },                ; // "application/x-gtar"
+                            { 22, "js"  },                ; // "application/x-javascript"
+                            { 23, "json"},                ; // "application/json"
+                            { 24, "tar" },                ; // "application/x-tar"
+                            { 25, "tex" },                ; // "application/x-tex"
+                            { 26, "zip" },                ; // "application/zip"
+                            { 27, "rar" },                ; // "application/rar"
+                            { 28, "midi" },               ; // "audio/midi"
+                            { 29, "mp3" },                ; // "audio/mpeg"
+                            { 30, "wav" },                ; // "audio/x-wav"
+                            { 31, "qt", "mov" },          ; // "video/quicktime"
+                            { 32, "avi" }                 ; // "video/x-msvideo"
+                        }
+
+CLASS HttpServer
+
+    DATA nPort          AS NUMERIC
+    DATA lRejetr        AS LOGICAL
+    DATA lConected      AS LOGICAL
+    DATA nPartTime      AS NUMERIC
+    DATA cBindAddress   AS CHARACTER
+    DATA hMutex         AS USUAL
+    DATA aThreads       AS ARRAY
+    DATA aDbConnect     AS ARRAY
+    DATA aCargo         AS ARRAY
+    DATA lShutdown      AS LOGICAL
+    DATA cFileStartPage AS CHARACTER
+    DATA cPathHttpFiles AS CHARACTER
+    DATA cPathTempFiles AS CHARACTER
+
+    // Verificar
+    DATA cError         AS CHARACTER
+    DATA hListen        AS USUAL
+
+    METHOD New()
+    METHOD Run()
+
+END CLASS
+
+
+METHOD New() CLASS HttpServer
+
+    ::nPort          := 80
+    ::lRejetr        := pFALSE
+    ::lConected      := pFALSE
+    ::nPartTime      := 1
+    ::cBindAddress   := "0.0.0.0"
+    (::hMutex        := {=>}, hb_HSetCaseMatch( ::hMutex, pFALSE), ::hMutex["dbConected"] := hb_mutexCreate())
+    ::hThreads       := {}
+    ::aDbConnect     := {}
+    ::aCargo         := {}
+    ::lShutdown      := pFALSE
+    ::cFileStartPage := ""
+    ::cPathHttpFiles := ""
+    ::cPathTempFiles := ""
+
+return Qself()
+
+
+METHOD Run() CLASS HttpServer
+
+local hSocket
+local thread
+local n
+local f
+local stop      :=  Zrodlo() + '.STOP_SERVER'  // Identificar
+local lRetValue := pFALSE
+
+    if ::nPort > 1 .or. ::nPort < 65535
+
+        if .not. empty( ::hListen := hb_socketOpen() )
+
+            if hb_socketBind( ::hListen, { HB_SOCKET_AF_INET, ::cBindAddress, ::nPort} )
+
+                if hb_socketListen( ::hListen )
+
+                    FErase( stop )
+                    while pTRUE
+
+                        if Empty( hb_socketAccept( ::hListen,, 250 ) )
+                            if hb_socketGetError() == HB_SOCKET_ERR_TIMEOUT
+                                if hb_FileExists( stop )
+                                    ::lShutdown := pTRUE
+                                    exit
+                                endif
+                            else
+                                if hb_socketGetError() != 0
+                                    na_dysk( Zrodlo( exename() ) + 'http_err', hb_TSToStr( hb_DateTime()) + "[error] Accept error " + hb_socketErrorString() )
+                                endif
+                            endif
+                        else
+                            f := pFALSE
+                            for each thread in ::aThreads
+                                if hb_threadWait( thread, 0 ) != 0
+                                    ( f := pTRUE, n := thread:__enumIndex )
+                                    ::aThreads[ n ] := hb_threadStart( @SocketConnection(), QSelf(), hSocket )
+                                    exit
+                                endif
+                            next
+
+                            if .not. f
+                                AAdd( ::aThreads, hb_threadStart( @SocketConnection(), QSelf(), hSocket))
+                            endif
+                            hb_idleSleep( 0.1 )
+                        endif
+
+                    enddo
+
+                    AEval( ::aThreads, { |xThread| hb_threadJoin( xThread ) })
+                    hb_socketClose( ::hListen )
+
+                    lRetValue := pTRUE
+
+                else
+                    ::cError := "Listen Error " + hb_ntos( hb_socketGetError() )
+                    hb_socketclo( ::hListen )
+                endif
+
+            else
+                ::cError := "Bind Error " + hb_ntos( hb_socketGetError() )
+                hb_socketClose( ::hListen )
+            endif
+
+        else
+        ::cError := "Erro na criacao so Socket" + hb_ntos( hb_socketGetError() )
+        endif    
+
+    else
+        ::cError := "Numero de porta invalida"
+    endif
+
+return lRetValue
+
+
+STATIC FUNCTION SocketConnection( oServer, hSocket )
+
+local nLen
+local nWebKitLen
+local cWebKitID
+local cPost
+local cS
+local cI
+Local aI
+local nI
+local nJ
+local nK
+local nhs
+local cBuf
+local cRequest          := ""
+local aRequest          := {}
+local nReqLen           := 0
+local aLine             := {}
+local cFile
+local cFileEx
+local counter           := 1
+local sid
+local klient            := ""
+local nBuffRecSizeSpace
+local nBuffSndSizeSpace
+local partTime          := oServer:nPartTime
+local timeOut           := partTime * 86400
+local endTime           := hb_DateTime() + partTime
+local timeStart         := hb_DateTime()
+local lEnd
+local stronka           := ""
+local outHeader
+local errTxt
+local oe
+local aTempFile         := {,}
+local aRecFile          := {,}
+local medota            := 0
+local domena            := ""
+local cDelim
+local ac
+local kg
+local domainList
+
+memvar s_aHeader, server, get, post, cookie, s_nStatusCode, keepConnection
+
+private s_aHeader := {=>}
+private server    := {=>}
+private get       := {=>}
+private post      := {=>}
+private cookie    := {=>}
+private s_nStatusCode
+private keepConnection := oServer:lConected
+
+if .not. Empty( ai := hb_socketGetPeerName( hSocket ) )
+    server[ as_http[ 5] ] := server[ as_http[ 4] ] := aI[ HB_SOCKET_ADINFO_ADDRESS ]
+    server[ as_http[ 6] ] := aI[ HB_SOCKET_ADINFO_PORT ]
+    klient := server[ as_http[ 4] ] + ':' + hb_ntos( server[ as_http[ 6 ] ] )
+endif
+
+if .not. Empty( aI := hb_socketGetSockName( hSocket ) )
+    server[ as_http[ 7] ] := aI[ HB_SOCKET_ADINFO_ADDRESS ]
+    server[ as_http[ 8] ] := aI[ HB_SOCKET_ADINFO_PORT ]
+endif
+
+? hb_DateTime(), "New t/s: ", hb_threadSelf(), "/", hSocket, "(", hb_ntos( Len( oserver:aThreads ) ) + ")" + server[ as_http[ 5]] + "/" + AnyType( server[ as_http[ 6]]) 
+
+( hb_HCaseMatch( s_aHeader, pFALSE),                      ;
+    hb_HSetOrder( s_aHeader, pTRUE ),                     ;
+    hb_socketGetRcvBufSize( hSocket, @nBuffRecSizeSpace), ;
+    cBuf := Space( nBuffRecSizeSpace),                    ;
+    hb_socketGetSndBufSize( hSocket, @nBuffSndSizeSpace), ;
+    cS := Space( nBuffSndSizeSpace)                       ;
+)
+
+sid := hb_MD5( DToS( Date()) + Time() + str( hb_Random(), 15, 12 )) 
+
+s_aHeader[ "X-Powered-By" ] := Version()
+s_aHeader[ "Cache-Control"] := 'no-cache'
+s_aHeader[ "Server"       ] := { |p| SubStr( p, RAt( hb_ps(), p) +1)}:Eval( hb_argv(0))
+
+while pTRUE
+
+    while .not. pCR_LF + pCR_LF $ cRequest .and. ( nLen := hb_socketRecv( hSocket, @cBuf,,, 100)) > 0
+        cRequest += Left( cBuf, nLen)
+    enddo
+
+    if Empty( cRequest )
+        if hb_DateTime() > endTime .or. server:lShutdown .or. counter == 1
+            exit
+        endif
+        loop
+    endif
+
+    for nI := 1 to 3
+        if At( delim[ nI], cRequest ) >= 0
+            cDelim := delim[ nI ]
+            exit
+        endif
+    next
+
+    if oServer:lRejetr
+        lapaj( 'e', cRequest + hb_eol() + 'socket: 0x' + hb_NumToHex( hSocket), 8, '0' )
+    endif
+
+    rtzs( Dokropki( cRequest, cDelim + cDelim), cDelim, aRequest, pFALSE )
+    rtzs( aRequest[ 1],, aLine )
+
+    server[ as_http[ 9] ] := aRequest[ 1]
+
+    for nI := 14 to 24
+        server[ as_http[ nI ] ] := ""
+    next
+
+    ( s_nStatusCode := 200, s_aHeader[ as_http[25] ] := "", errTxt := "", nReqLen := 0 )
+
+    if Len( aLine ) >= 3 .and. Left( aLine[3], 5 ) == "HTTP/"
+        server[ as_http[10] ] := aLine[1]   // "REQUEST_METHOD"
+        server[ as_http[11] ] := aline[2]   // "REQUEST_URI"
+        server[ as_http[ 1] ] := aLine[3]   // "SERVER_PROTOCOL"
+
+        if .not. ( StrPeek( server[ as_http[11] ], 1) == 47 ) // "REQUEST_URI" == "/"
+            server[ as_http[11] ]:= "/" + server[ as_http[11] ]
+        endif
+
+        if ( nI := At( "?", server[ as_http[11]])) > 0                      // "REQUEST_URI"
+            server[ as_http[12] ] := Left( server[ as_http[11]], nI - 1 )   // "SCRIPT_NAME"
+            server[ as_http[13] ] := SubStr( server[ as_http[11]], nI + 1 ) // "QUERY_STRING"
+        else
+            server[ as_http[12] ] := server[ as_http[11] ]
+            server[ as_http[13] ] := ""
+        endif
+
+        for nI := 2 to Len( aRequest )
+            if aRequest[ nI ] == ""
+                exit
+            elseif (nJ := At( ":", aRequest[ nI ])) > 0
+                cI := AllTrim( SubStr( aRequest[ nI ], nJ + 1))
+                switch Upper( Left( aRequest[ nI ], nJ - 1 ))
+                    case "COOKIE"
+                        for each cI in rtzs( cI, ";" )
+                            if ( nLen := At( "=", cI)) > 0
+                                cookie[ Upper( Left(cI, nLen - 1)) ] := SubStr( cI, nLen + 1)
+                            else
+                                cookie[ Upper( cI )] := Nil
+                            endif
+                        next
+                        exit
+                    case "CONTENT-LENGTH"
+                        nReqLen :=Val( cI )
+                        exit
+                    otherwise
+                        server[ "HTTP_" + StrTran( Upper( Left( aRequest[ nI ], nJ - 1)), "-", "_")] := cI
+                        exit
+                end switch
+            endif
+        next
+
+        if as_http[24] $ cookie
+            if cookie[ as_http[24] ] != sid
+                sid := cookie[ as_http[24] ]
+            endif
+        endif
+
+        if nReqLen > 0
+            if as_http[33] == Left( server[ as_http[23]], 33) // HTTP_CONTENT_TYPE, Ajax w akcji
+                if ( nK := Len( SubStr( cRequest, At( pCR_LF + pCR_LF, cRequest) + 4))) < nReqLen
+                    lEnd := pFALSE
+                    while nK < nJ
+                        if ( nLen := hb_socketRecv( hSocket, @cBuf,,, 250)) > 0
+                            ( cRequest += Left( cBuf, nLen), nK += nLen )
+                        elseif nLen < 0 .or. hb_DateTime() > endTime .or. oServer:lShutdown
+                            lEnd := pTRUE
+                            exit
+                        endif
+                    enddo
+
+                    if lEnd
+                        exit
+                    endif
+                endif
+
+                for each cI in rtzs( Right( cRequest, nReqLen), "&")
+                    if ( nI := At( "=", cI)) > 0
+                        post[ DecodeUrl( Left( cI, nI - 1))] := DecodeUrl( SubStr( cI, nI + 1))
+                    else
+                        post[ DecodeUrl( cI)] := Nil
+                    endif
+                next
+
+            elseif as_http[31] == Left( server[ as_http[23] ], 19 ) .and. as_http[32] $ server[ as_http[23] ]
+                cWebKitID := "--" + SubStr( server[ as_http[23] ], hb_At( server[ as_http[23]], server[ as_http[32] ]))
+                nWebKitlen := Len( cWebKitID )
+                cPost := SubStr( cRequest, At( cDelim + cDelim, cRequest) +  Len( cDelim + cDelim) + 1 )
+
+                while .not. cDelim + cDelim $ cRequest .and. ( nLen := hb_socketRecv( hSocket, @cBuf,,, 100)) > 0
+                    ( cRequest += Left( cBuf, nLen ), nK += nLen )
+                enddo
+
+                if nLen == 0 .and. Empty( cRequest )
+                    lEnd := pTRUE
+                    exit
+                endif
+
+                for each cI in hb_ATokens( SubStr( cRequest, nWebKitLen+ 1, At( cRequest, cDelim + cDelim)- 1), cDelim )
+                    if cI == ""
+                        exit
+
+                    elseif ( nJ := At( ":", cI)) > 0
+                        post[ Upper( Left( cI, nJ - 1)) ] := SubStr( cI, nJ + 1)
+                    endif
+                next
+
+                aRecFile[1] := hb_FTempCreateEx( @aRecFile[2], oServer:cPathTempFiles, "REC_", ".imp")
+                post[ 'IMPFILETEMPNAME' ] := aRecFile[2]
+                cRequest := SubStr( cRequest, RAt( cDelim + cDelim, cRequest) + Len( cDelim + cDelim ))
+
+                while ( nLen := hb_socketRecv( hSocket, @cBuf,,, 100)) > 0
+                    ( nK += nLen, cRequest += Left( cBuf, nLen))
+
+                    if ( nJ := At( cWebKitID, cRequest)) != 0
+                        FWrite( aRecFile[ 1], Left( cRequest, nJ- 1))
+                        FClose( aRecFile )
+
+                        while nK < nJ .and. nLen > 0
+                            ( nLen := hb_socketRecv( hSocket, @cBuf,,, 100), nK += nLen )
+                        enddo
+                        exit
+                    else
+                        FWrite( aRecFile[ 1], Left( cRequest, len( cRequest ) - nWebKitLen))
+                        cRequest := Right( cRequest, nWebKitLen )
+                    endif
+
+                enddo
+            endif
+        endif
+
+        if .not. Empty( server[ as_http[13] ]) // "QUERY_STRING"
+            for each cI in rtzs( server[ as_http[13] ], "&" )
+                if ( nI := At( "=", cI )) > 0
+                    get[ DecodeUrl( Left( cI, nI- 1))] := DecodeUrl( SubStr( cI, nI+ 1))
+                else
+                    get[ DecodeUrl( cI )] := Nil
+                endif
+            next
+        endif
+
+    else
+
+        server[ as_http[12] ] := iif( len( aLine ) >= 2, aLine[ 2], "") // 12 SCRIPT_NAME
+        server[ as_http[10] ] := aLine[ 1]                              // 10 REQUEST_METHOD
+        server[ as_http[11] ] := iif( Len( aLine ) >= 2, aline[ 2], "") // 11 REQUEST_URI
+        server[ as_http[ 1] ] := iif( Len( aLine ) >= 3, aline[ 3], "") //  1 SERVER_PROTOCOL
+
+    endif
+
+    ( ac := kg := '0', ni := 0, medota := AScan( methods, server[ as_http[10] ]))
+
+    if aTempFile[ 1] != Nil
+        FSeek( aTempFile[1], 0, 0)
+    endif
+
+    if nhs != Nil
+        FClose( nhs )
+        nhs := Nil
+    endif
+
+    if Left( server[ as_http[ 1]], 8) $ as_http[ 3] +  as_http[ 2] // "SERVER_PROTOCOL" $ "HTTP/1.1" + "HTTP/1.0"
+        switch medota
+            case 3  // "HEAD"
+                keepConnection := pFALSE
+            case 1  // "GET"
+            case 2  // "POST"
+                domena := server[ 'HTTP_HOST' ]
+                if hb_regexLike( "[0-9.:]+", domena)
+                    ( domena := "", ac := '1')
+                else
+                    if Left( Lower( domena+ hb_ps() ), 4) == 'www.'
+                        domena := SubStr( domena, 5)
+                    endif
+                endif
+
+                if server[ as_http[12]] == '/'
+                    kg := '1'
+                    if ac == '1'
+                        domainList := Directory( oServer:cPathHttpFiles, 'D' )
+                        for each aI in domainList
+                            if .not. aI[ 1] $ '..' .and. rozszerzenie( aI[ 1] ) $ '.pl'
+                                stronka += '<a href="http://www.' + aI[ 1] + '">' + aI[ 1] + '?</a><br>'
+                            endif
+                        next
+                    else
+                        for each aI in Directory( Nakoncu( oServer:cPathHttpFiles + domena, hb_ps()))
+                            if ai[ 1] == oServer:cFileStartPage
+                                cFile := oserver:cFileStartPage
+                                exit
+                            elseif AScan( { 'start', 'index'}, ( ci := Lower( SubStr( ai[ 1], 1, At( '.', ai[ 1] + '.'))))) > 0
+                                cFileEx := aI[ 1]
+                                exit
+                            endif
+                        next
+
+                        if Empty( cFile )
+                            if .not. Empty( cFileEx)
+                                cFile := cFileEx
+                            else
+                                ( s_nStatusCode := 303, s_aHeader[ "Location" ] := oServer:cFileStartPage )
+                            endif
+                        endif
+                    endif
+                endif
+
+            switch ac + kg
+                case '00'
+                case '10'
+                    keepConnection := Lower( as_http[27]) $ Lower( server[ as_http[18] ])
+                    if hb_FileExists( cFile := oServer:cPathHttpFiles + domena + server[ as_http[12] ]) .or. ;
+                        hb_FileExists( cFile:= oServer:cPathHttpFiles + server[ as_http[12] ])
+                        if Upper( Right( cfile, 4)) == '.PRG'
+                            ( nI :=0, keepConnection := oServer:lConected )
+
+                            if aTempFile[1] == Nil
+                                if ( aTempFile[1] := hb_FTempCreateEx( @aTempFile[2], oServer:cPathTempFiles, "HTML_", ".tmp")) == Nil
+                                    hb_DispOutAt( Row() + 1, 0, 'Nao foi possivel criar o arquivo no ' + AnyType( oServer:cPathTempFiles), 'r/w' )
+                                endif
+                            else
+                                FSeek( aTempFile[ 1], 0, 0)
+                            endif
+
+                            begin sequence
+                                if ValType( stronka := boss( cFile, oServer, aTempFile[ 1])) != 'C'
+                                    stronka := ""
+                                endif
+                            recover using oe
+                                ( s_nStatusCode := 500, errTxt := StrTran( oErrToTxt( oe ), pCR_LF, '<br>') )
+                            end sequence
+
+                        else
+
+                            if ( nI := FileSize( cFile )) > nBuffSndSizeSpace
+                                if .not. ( nhs := FOpen( cFile, 64 )) > 0
+                                    ( nhs := Nil, stronka := 'Nao foi possivel abrir ' + cFile) // FO_READ + FO_SHARED | FO_PRIVATE
+                                endif
+                            else
+                                stronka := hb_MemoRead( cFile )
+                            endif
+
+                            if (nI := RAt( '.', cFile)) > 0
+                                if .not. Empty( cI := Lower( SubStr( cFile, nI+ 1))) .and. ;
+                                    ( nI := AScan( MapTypeFile, { |aSub| AScan( aSub, ci, 2) > 0} ) ) > 0
+                                    s_aHeader[ as_http[25] ] := headerMember[ as_http[25] ][ MapTypeFile[ nI ][1]]
+                                endif
+                            endif
+                        endif
+                    else
+
+                        na_dysk( 'log_404', hb_TSToStr( hb_DateTime() ) + ', domena - ' + AnyType( domena) + ', request - ' + server[ as_http[12] ] + ', cFile - ' + cFile)
+                        s_nStatusCode := 404
+                    endif
+                    exit
+
+                case '01'
+                    if .not. Empty( cFile )
+                        ( s_nStatusCode := 303, s_aHeader["Location"] := cFile)
+                    endif
+                    exit
+
+                case '11'
+                    stronka := "<html><body>" + stronka + "</body></html>"
+            end switch
+            exit
+
+            otherwise
+                s_nStatusCode := 501
+        end switch
+
+    else
+        s_nStatusCode := 400
+    endif
+
+    if keepConnection .or. iobd() > 0
+        s_aHeader[ as_http[28]] := as_http[27]
+        s_aHeader[ as_http[27]] := 'timeout=' + hb_ntos( int( PartTime * 86400 - 1))
+    else
+        s_aHeader[ as_http[28]] := as_http[29]
+        hb_HDel( s_aHeader, as_http[27])
+    endif
+
+    if s_aHeader[ as_http[25] ] == ""
+        s_aHeader[ as_http[25]] := "text/html"
+    endif
+
+    s_aHeader[ "Date" ] := httpDateFormat:Eval( hb_DateTime() )
+
+    if .not. s_nStatusCode $ hStatusCode
+        (s_nStatusCode := 500, s_aHeader[ as_http[28]] := as_http[29])
+    endif
+
+    outHeader := iif( server[ as_http[ 1] ] == as_http[ 2], as_http[ 2], as_http[ 3]) + " " + hStatusCode[ s_nStatusCode ] + pCR_LF
+
+    if s_nStatusCode != 200
+        stronka := "<html><body><h1>" + hStatusCode[ s_nStatusCode ] + '<br>' + errTxt + "</h1></body></html>"
+    endif
+
+    if s_nStatusCode == 400 .or. s_nStatusCode == 501
+        s_aHeader[ as_http[28] ] := as_http[29]
+    endif
+
+    if .not. Empty( stronka )
+        s_aHeader[ as_http[30] ] := hb_ntos( Len( stronka ))
+    elseif nhs != Nil
+        ( FSeek( nhs, 0, FS_END), s_aHeader[ as_http[30]] := hb_ntos( nI := FSeek( nhs, FS_RELATIVE)))
+    elseif aTempFile[1] != Nil .and. ( nI := FSeek( aTempFile[1], 0, 1)) > 0
+        s_aHeader[ as_http[30]] := hb_ntos( nI )
+    else
+        s_aHeader[ as_http[30]] := '0'
+    endif
+
+    hb_HEval( s_aHeader, { |x,y| outHeader += x + ":" + y + pCR_LF } )
+
+    if oServer:lRejetr
+        lapaj( 'x', outHeader + iif( Empty( stronka), 'Z pliku ' + iif( nhs != Nil, AnyType( cFile ), AnyType( aTempFile[2])), ;
+            iif( medota == 3, 'HEAD!', 'Stronka:' + hb_ntos( Len( stronka )) + 'b.')) + hb_eol() + 'socket: 0x' + PadL( hb_NumToHex( hSocket), 8, '0') + ;
+            '/thread: 0x' + PadL( hb_NumToHex( hb_threadSelf() ), 8, '0') + ' ' + klient )
+    endif
+
+    outHeader += pCR_LF + iif( medota != 3, stronka, "")
+
+    while Len( outHeader ) > 0
+        if ( nLen := hb_socketSend( hSocket, outHeader)) == -1
+            ? 'h-t/s: ', hb_threadSelf(), '/', hSocket, " :send() error:", hb_socketErrorString( hb_socketGetError() )
+            exit
+        elseif nLen > 0
+            outHeader := SubStr( outHeader, nLen + 1)
+        endif
+    enddo
+
+    if Empty( stronka) .and. nI > 0 .and. medota != 3
+        (FSeek( iif( nhs != Nil, nhs, aTempFile[1]), 0, 0), nJ := 0)
+
+        while nJ < nI
+            nK := FRead( iif( nhs != Nil, nhs, aTempFile[1]), @cS, Min( nBuffSndSizeSpace, nI ))
+            outHeader := Left( cS, nK)
+
+            while len( outHeader) > 0
+                if ( nLen := hb_socketSend( hSocket, outHeader)) == -1
+                    ? 'b-t/s:', hb_threadSelf(), '/', hSocket, " :send() error:", hb_socketErrorString( hb_socketGetError())
+                    exit
+                elseif nLen > 0
+                    outHeader := SubStr( outHeader, nLen+ 1)
+                endif
+            enddo
+
+            nJ += nK
+
+        enddo
+    endif
+
+    if ( nhs != Nil .and. nhs > 0 )
+        fclose( nhs )
+        nhs := Nil
+    endif
+
+    if s_aHeader[ as_http[28] ] == as_http[29] .or. server[ as_http[ 1]] == as_http[ 2] .or. oServer:lShutdown
+        exit
+    endif
+
+    (counter++, endTime := hb_DateTime() + partTime, stronka := cRequest := "", hb_HClear(server), hb_HClear(get), hb_HClear(post), hb_HClear(cookie))
+
+enddo
+
+? 'After', hb_TSToStr( hb_NToT( hb_DateTime() - timeStart)), 'close t/s:', hb_threadSelf(), "/", hSocket, "(", hb_ntos( Len( oServer:aThreads)), ")/(" + hb_ntos(counter)+")"
+
+if aTempFile[1] != Nil
+    FClose( aTempFile[1] )
+    FErase( aTempFile[2] )
+endif
+
+dbCloseAll()
+hb_socketShutdown()
+hb_socketClose( hSocket )
+
+return 0
+
+
+FUNCTION DecodeUrl( cString )
+
+local c2
+local nI  := 1
+local sdd := "0123456789ABCDEFabcdef"
+
+    cString := StrTran( cString, '+', " ")
+
+    while nI <= Len( cString )
+        if ( nI := hb_At( '%', cString, nI )) == 0
+            exit
+        endif
+
+        c2 := SubStr( cString, nI+ 1, 2)
+
+        if Left( c2, 1) $ sdd .and. Right( c2, 1) $ sdd
+            cString := Stuff( cString, nI, 3, hb_HexToStr( c2 ))
+        endif
+
+        nI++
+    enddo
+
+return( cString )
+
+
+static function lapaj( Tryb, txt)
+
+static zapisz := { |Tryb, txt| ;
+                    if .not. Empty( txt ) ;
+                        switch Tryb ;
+                            case 'e' ; ( dbAppend(), Field->WEJSCIE := txt, exit ) ;
+                            case 'd' ;
+                                if dbRLock() ;
+                                    ( Field->WEJSCIE += hb_osNewLine() + '--' + hb_osNewLine() + txt, dbUnlock() ) ;
+                                endif;
+                                exit;
+                            otherwise ;
+                                (Field->WYJSCIE := txt, dbUnlock()) ;
+                        end;
+                    endif;
+                    return Nil }
+
+    if Select( 'LAPACZ') == 0
+        set( 45, pTRUE)
+        dbUseArea( pTRUE, 'DBFCDX', path( 'lapacz'),, pTRUE, pFALSE)
+        ordSetFocus(1)
+    endif
+
+    lapacz->( zapisz:Eval( Tryb, txt), iif( Tryb == 'x', dbCloseArea(), Nil ))
+
+return Nil

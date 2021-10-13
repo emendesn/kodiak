@@ -1,0 +1,6 @@
+main.prg
+menuclass.prg
+windclass.prg
+editor.prg
+#debug.prg
+#dbg_lib.prg

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title></title>
+
+  <!-- Fonts CSS - Recommended but not required -->
+  <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.9.0/build/fonts/fonts-min.css">
+  
+  <!-- Core + Skin CSS -->
+  <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/2.9.0/build/menu/assets/skins/sam/menu.css">
+  
+  <!-- Dependencies --> 
+  <script src="http://yui.yahooapis.com/2.9.0/build/yahoo-dom-event/yahoo-dom-event.js"></script>
+  <script src="http://yui.yahooapis.com/2.9.0/build/container/container_core-min.js"></script>
+  <script type="text/javascript" src="json-serialization.js"></script>
+  <script src="js/socketserver.js"></script>
+  <script src="http://yui.yahooapis.com/2.9.0/build/menu/menu-min.js"></script>
+  <script type="text/javascript" src="http://jqueryjs.googlecode.com/files/jquery-1.2.6.js"></script>
+</head>
+<body class="yui-skin-sam">
+<div id="divmain"></div>
+</body>
+  <script type="text/javascript">
+      /* Create a new server client */
+      var ss = new H5_SocketServer('ws://localhost:8080');    
+      /* Connect to the server */
+      ss.connect();
+  </script>
+</html>
